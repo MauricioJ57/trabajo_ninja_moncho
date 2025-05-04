@@ -18,37 +18,37 @@ export default class HelloWorldScene extends Phaser.Scene {
     }
 
     create() {
-        const cielo = this.add.image(0, 0, "cielo").setOrigin(0, 0);
-        cielo.displayWidth = this.scale.width;
-        cielo.displayHeight = this.scale.height;
+        this.add.image(400, 300, "cielo").setOrigin(0.5, 0.5).setScale(2);
 
-        const ninja = this.add.image(100, 500, "ninja").setOrigin(0.5, 0.5);
-        ninja.setScale(0.2, 0.2);
-        this.physics.add.existing(ninja);
+        this.platforms = this.physics.add.staticGroup();
 
-        const platform = this.add.image(400, 580, "platform")
-            .setScale(2);
-        this.physics.add.staticGroup(platform);
-        this.physics.add.collider(ninja, platform,);
+        this.platforms.create(400, 580, "platform").setScale(2).refreshBody();
 
-        const diamante = this.add.image(200, 300, "diamond");
-        diamante.setScale(0.5, 0.5);
-        this.physics.add.existing(diamante);
-        this.physics.add.collider(diamante, platform,);
+        this.player = this.physics.add.sprite(100, 480, "ninja").setScale(0.2);
 
-        const square = this.add.image(400, 300, "square");
-        square.setScale(0.5, 0.5);
-        this.physics.add.existing(square);
-        this.physics.add.collider(square, platform,);
+        this.player.setBounce(0,1);
+        this.player.setCollideWorldBounds(true);
 
-        const triangle = this.add.image(600, 300, "triangle");
-        triangle.setScale(0.5, 0.5);
-        this.physics.add.existing(triangle);
-        this.physics.add.collider(triangle, platform,);
+        this.cursors = this.input.keyboard.createCursorKeys();
+
+        this.diamond = this.physics.add.sprite(200, 300, "diamond").setScale(0.5);
+
+        this.diamond.setCollideWorldBounds(true);
+
+        this.square = this.physics.add.sprite(400, 300, "square").setScale(0.5);
+
+        this.square.setCollideWorldBounds(true);
+
+        this.triangle = this.physics.add.sprite(600, 300, "triangle").setScale(0.5);
+
+        this.triangle.setCollideWorldBounds(true);
 
     }
 
     update() {
+        if (this.cursors.left.isDown) {
+            this.player.setVelocityX(-160);
+        }
         // ejecuta acciones constantes dentro del juego
     }
 }
