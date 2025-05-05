@@ -1,6 +1,6 @@
-export default class HelloWorldScene extends Phaser.Scene {
+export default class ninja_moncho extends Phaser.Scene {
     constructor() {
-        super("HelloWorldScene");
+        super("ninja_moncho"); // se asigna el nombre de la escena
     }
 
     init() {
