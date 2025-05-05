@@ -51,6 +51,12 @@ export default class ninja_moncho extends Phaser.Scene {
             fontSize: "64px",
             fill: "#fff",
         }).setOrigin(0.5, 0.5);
+        this.gameOverText.visible = false;
+
+        this.timertext = this.add.text(16, 45, `Time: ${this.timer}`, {
+            fontSize: "32px",
+            fill: "#fff",
+        })
 
         this.diamond = this.physics.add.sprite(200, 300, "diamond").setScale(0.5); //se añaden los objetos de puntos
 
@@ -109,14 +115,13 @@ export default class ninja_moncho extends Phaser.Scene {
             this.player.setVelocityX(0);
 
         } if (this.restartKey.isDown) {
-            this.scene.start("HelloWorldScene")
+            this.scene.start("ninja_moncho")
         }
 
         if (this.cursors.up.isDown && this.player.body.touching.down) {
             this.player.setVelocityY(-330);
 
         }
-        // ejecuta acciones constantes dentro del juego
     }
 
     collectDiamond(player, diamond) {
@@ -138,5 +143,23 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.score += 5;
         this.scoreText.setText(`Score: ${this.score}`);
+    }
+
+    contador() {
+        this.timer = 45;
+        this.timertext.addEvent({
+            delay: 1000,
+            callback: () => {
+                if (this.timer > 0) {
+                    this.timer--;
+                }
+                if (this.timer === 0) {
+                    this.gameOver = true;
+                    this.physics.pause();
+                    this.gameOverText.visible = true;
+                }
+            },
+            loop: true,
+        });
     }
 }
