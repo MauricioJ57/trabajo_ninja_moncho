@@ -58,6 +58,35 @@ export default class ninja_moncho extends Phaser.Scene {
             fill: "#fff",
         })
 
+        this.recolectables = this.physics.add.group()
+
+        this.spawnShapes = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                const figuras = ["diamond", "square", "triangle"]
+
+                const shape = this.recolectables.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(figuras))
+                const scale = Phaser.Math.FloatBetween(0.3, 0.7)
+                console.log(scale)
+                shape.setScale(scale)
+            },
+            loop: true
+        })
+
+        this.objetonuevo = this.physics.add.group()
+
+        this.spawnNewObject = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                const circle = ["objeto nuevo"]
+
+                const shapeC = this.objetonuevo.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(circle))
+                const scaleC = Phaser.Math.FloatBetween(0.3, 0.7)
+                console.log(scaleC)
+                shapeC.setScale(scaleC)
+            } // Aplicar y seguir con este metodo desde ahora y acordarse de revisar con la consola de desarrollador
+        })
+
         this.diamond = this.physics.add.sprite(200, 100, "diamond").setScale(0.5).setBounce(1); //se añaden los objetos de puntos
 
         this.square = this.physics.add.sprite(400, 100, "square").setScale(0.5).setBounce(1);
@@ -68,13 +97,21 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.physics.add.collider(this.player, this.platforms); //se añaden los colliders entre objetos
 
-        this.physics.add.collider(this.diamond, this.platforms);
+        this.physics.add.collider(this.recolectables, this.platforms);
 
         this.physics.add.collider(this.square, this.platforms);
 
         this.physics.add.collider(this.triangle, this.platforms);
 
         this.physics.add.collider(this.circulo, this.platforms);
+
+        this.physics.add.overlap(
+            this.player,
+            this.recolectables,
+            this.collectRecolectables,
+            null,
+            this
+        );
 
         this.physics.add.overlap(
             this.player,
@@ -170,6 +207,13 @@ export default class ninja_moncho extends Phaser.Scene {
         circulo.disableBody(true, true);
 
         this.score -= 5;
+        this.scoreText.setText(`Score: ${this.score}`);
+    }
+
+    collectRecolectables(player, recolectables) {
+        recolectables.disableBody(true, true);
+
+        this.score += 1;
         this.scoreText.setText(`Score: ${this.score}`);
     }
 
