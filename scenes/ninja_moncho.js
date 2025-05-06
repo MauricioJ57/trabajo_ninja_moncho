@@ -27,7 +27,6 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.platforms.create(25, 350, "platform");
         this.platforms.create(775, 350, "platform");
-        this.platforms.create(400, 150, "platform");
 
         this.player = this.physics.add.sprite(100, 480, "ninja").setScale(0.15); //se añade el personaje
 
@@ -59,21 +58,13 @@ export default class ninja_moncho extends Phaser.Scene {
             fill: "#fff",
         })
 
-        this.diamond = this.physics.add.sprite(200, 300, "diamond").setScale(0.5); //se añaden los objetos de puntos
+        this.diamond = this.physics.add.sprite(200, 100, "diamond").setScale(0.5).setBounce(1); //se añaden los objetos de puntos
 
-        this.diamond.setCollideWorldBounds(true);
+        this.square = this.physics.add.sprite(400, 100, "square").setScale(0.5).setBounce(1);
 
-        this.square = this.physics.add.sprite(400, 300, "square").setScale(0.5);
+        this.triangle = this.physics.add.sprite(600, 100, "triangle").setScale(0.5).setBounce(1);
 
-        this.square.setCollideWorldBounds(true);
-
-        this.triangle = this.physics.add.sprite(600, 300, "triangle").setScale(0.5);
-
-        this.triangle.setCollideWorldBounds(true);
-
-        this.circulo = this.physics.add.sprite(400, 100, "objeto nuevo").setScale(0.13);
-
-        this.circulo.setCollideWorldBounds(true);
+        this.circulo = this.physics.add.sprite(700, 100, "objeto nuevo").setScale(0.13).setBounce(1);
 
         this.physics.add.collider(this.player, this.platforms); //se añaden los colliders entre objetos
 
@@ -144,6 +135,11 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.score += 20;
         this.scoreText.setText(`Score: ${this.score}`);
+
+        if (this.diamond.body.touching.down) {
+            this.score -= 5;
+            this.scoreText.setText(`Score: ${this.score}`);
+        }
     }
 
     collectSquare(player, square) {
@@ -151,6 +147,11 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.score += 15;
         this.scoreText.setText(`Score: ${this.score}`);
+
+        if (this.square.body.touching.down) {
+            this.score -= 5;
+            this.scoreText.setText(`Score: ${this.score}`);
+        }
     }
     
     collectTriangle(player, triangle) {
@@ -158,6 +159,11 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.score += 10;
         this.scoreText.setText(`Score: ${this.score}`);
+
+        if (this.triangle.body.touching.down) {
+            this.score -= 5;
+            this.scoreText.setText(`Score: ${this.score}`);
+        }
     }
 
     collectCirculo(player, circulo) {
