@@ -15,6 +15,7 @@ export default class ninja_moncho extends Phaser.Scene {
         this.load.image("ninja", "public/assets/Ninja.png");
         this.load.image("square", "public/assets/square.png");
         this.load.image("triangle", "public/assets/triangle.png");
+        this.load.image("objeto nuevo", "public/assets/objeto nuevo.png");
     }
 
     create() {
@@ -70,6 +71,10 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.triangle.setCollideWorldBounds(true);
 
+        this.circulo = this.physics.add.sprite(400, 100, "objeto nuevo").setScale(0.13);
+
+        this.circulo.setCollideWorldBounds(true);
+
         this.physics.add.collider(this.player, this.platforms); //se añaden los colliders entre objetos
 
         this.physics.add.collider(this.diamond, this.platforms);
@@ -77,6 +82,8 @@ export default class ninja_moncho extends Phaser.Scene {
         this.physics.add.collider(this.square, this.platforms);
 
         this.physics.add.collider(this.triangle, this.platforms);
+
+        this.physics.add.collider(this.circulo, this.platforms);
 
         this.physics.add.overlap(
             this.player,
@@ -98,6 +105,14 @@ export default class ninja_moncho extends Phaser.Scene {
             this.player,
             this.triangle,
             this.collectTriangle,
+            null,
+            this
+        );
+
+        this.physics.add.overlap(
+            this.player,
+            this.circulo,
+            this.collectCirculo,
             null,
             this
         );
@@ -127,21 +142,28 @@ export default class ninja_moncho extends Phaser.Scene {
     collectDiamond(player, diamond) {
         diamond.disableBody(true, true);
 
-        this.score += 10;
+        this.score += 20;
         this.scoreText.setText(`Score: ${this.score}`);
     }
 
     collectSquare(player, square) {
         square.disableBody(true, true);
 
-        this.score += 2;
+        this.score += 15;
         this.scoreText.setText(`Score: ${this.score}`);
     }
     
     collectTriangle(player, triangle) {
         triangle.disableBody(true, true);
 
-        this.score += 5;
+        this.score += 10;
+        this.scoreText.setText(`Score: ${this.score}`);
+    }
+
+    collectCirculo(player, circulo) {
+        circulo.disableBody(true, true);
+
+        this.score -= 5;
         this.scoreText.setText(`Score: ${this.score}`);
     }
 
