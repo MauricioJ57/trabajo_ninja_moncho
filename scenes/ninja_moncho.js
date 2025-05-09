@@ -89,23 +89,44 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.diamond = this.physics.add.sprite(200, 300, "diamond").setScale(0.5); //se añaden los objetos de puntos
 
-        this.diamond.setCollideWorldBounds(true);
+        this.spawnShapes = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                const figuras = ["diamond", "square", "triangle"]
 
-        this.square = this.physics.add.sprite(400, 300, "square").setScale(0.5);
+                const shape = this.recolectables.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(figuras))
+                const scale = Phaser.Math.FloatBetween(0.3, 0.7)
+                console.log(scale)
+                shape.setScale(scale)
+            },
+            loop: true
+        })
 
-        this.square.setCollideWorldBounds(true);
+        this.objetonuevo = this.physics.add.group()
 
-        this.triangle = this.physics.add.sprite(600, 300, "triangle").setScale(0.5);
+        this.spawnNewObject = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                const circle = ["objeto nuevo"]
 
-        this.triangle.setCollideWorldBounds(true);
+                const shapeC = this.objetonuevo.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(circle))
+                const scaleC = Phaser.Math.FloatBetween(0.3, 0.7)
+                console.log(scaleC)
+                shapeC.setScale(scaleC)
+            } // Aplicar y seguir con este metodo desde ahora y acordarse de revisar con la consola de desarrollador
+        })
 
-        this.circulo = this.physics.add.sprite(400, 100, "objeto nuevo").setScale(0.13);
+        this.diamond = this.physics.add.sprite(200, 100, "diamond").setScale(0.5).setBounce(1); //se añaden los objetos de puntos
 
-        this.circulo.setCollideWorldBounds(true);
+        this.square = this.physics.add.sprite(400, 100, "square").setScale(0.5).setBounce(1);
+
+        this.triangle = this.physics.add.sprite(600, 100, "triangle").setScale(0.5).setBounce(1);
+
+        this.circulo = this.physics.add.sprite(700, 100, "objeto nuevo").setScale(0.13).setBounce(1);
 
         this.physics.add.collider(this.player, this.platforms); //se añaden los colliders entre objetos
 
-        this.physics.add.collider(this.diamond, this.platforms);
+        this.physics.add.collider(this.recolectables, this.platforms);
 
         this.physics.add.collider(this.square, this.platforms);
 
@@ -180,6 +201,11 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.score += 20;
         this.scoreText.setText(`Score: ${this.score}`);
+
+        if (this.diamond.body.touching.down) {
+            this.score -= 5;
+            this.scoreText.setText(`Score: ${this.score}`);
+        }
     }
 
     collectSquare(player, square) {
@@ -187,6 +213,11 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.score += 15;
         this.scoreText.setText(`Score: ${this.score}`);
+
+        if (this.square.body.touching.down) {
+            this.score -= 5;
+            this.scoreText.setText(`Score: ${this.score}`);
+        }
     }
     
     collectTriangle(player, triangle) {
@@ -194,6 +225,11 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.score += 10;
         this.scoreText.setText(`Score: ${this.score}`);
+
+        if (this.triangle.body.touching.down) {
+            this.score -= 5;
+            this.scoreText.setText(`Score: ${this.score}`);
+        }
     }
 
     collectCirculo(player, circulo) {
