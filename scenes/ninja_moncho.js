@@ -4,7 +4,8 @@ export default class ninja_moncho extends Phaser.Scene {
     }
 
     init() {
-        // asignar las varianbles para poder pasarlas entre escenas
+       this.score = 0;
+       this.timer = 45; // asignar las varianbles para poder pasarlas entre escenas
     }
 
     preload() {
@@ -27,7 +28,6 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.platforms.create(25, 350, "platform");
         this.platforms.create(775, 350, "platform");
-        this.platforms.create(400, 150, "platform");
 
         this.player = this.physics.add.sprite(100, 480, "ninja").setScale(0.15); //se añade el personaje
 
@@ -39,8 +39,7 @@ export default class ninja_moncho extends Phaser.Scene {
             Phaser.Input.Keyboard.KeyCodes.R
         );
 
-        this.score = 0;
-        this.timer = 45;
+        
         this.gameOver = false;
 
         this.scoreText = this.add.text(16, 16, `Score: ${this.score}`,{
@@ -57,6 +56,35 @@ export default class ninja_moncho extends Phaser.Scene {
         this.timertext = this.add.text(16, 45, `Time: ${this.timer}`, {
             fontSize: "32px",
             fill: "#fff",
+        })
+
+        this.recolectables = this.physics.add.group();
+
+        this.spawnShapes = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                const figuras = ["diamond", "square", "triangle"]
+
+                const shape = this.recolectables.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(figuras))
+                const scale = Phaser.Math.FloatBetween(0.3, 0.7)
+                console.log(scale)
+                shape.setScale(scale)
+            },
+            loop: true
+        })
+
+        this.objetonuevo = this.physics.add.group();
+
+        this.spawnNewObject = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                const circle = ["objeto nuevo"]
+
+                const shapeC = this.objetonuevo.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(circle))
+                const scaleC = Phaser.Math.FloatBetween(0.3, 0.7)
+                console.log(scaleC)
+                shapeC.setScale(scaleC)
+            } // Aplicar y seguir con este metodo desde ahora y acordarse de revisar con la consola de desarrollador apretando F12
         })
 
         this.diamond = this.physics.add.sprite(200, 300, "diamond").setScale(0.5); //se añaden los objetos de puntos
@@ -84,6 +112,14 @@ export default class ninja_moncho extends Phaser.Scene {
         this.physics.add.collider(this.triangle, this.platforms);
 
         this.physics.add.collider(this.circulo, this.platforms);
+
+        this.physics.add.overlap(
+            this.player,
+            this.recolectables,
+            this.collectRecolectables,
+            null,
+            this
+        );
 
         this.physics.add.overlap(
             this.player,
@@ -164,6 +200,13 @@ export default class ninja_moncho extends Phaser.Scene {
         circulo.disableBody(true, true);
 
         this.score -= 5;
+        this.scoreText.setText(`Score: ${this.score}`);
+    }
+
+    collectRecolectables(player, recolectables) {
+        recolectables.disableBody(true, true);
+
+        this.score += 1;
         this.scoreText.setText(`Score: ${this.score}`);
     }
 
