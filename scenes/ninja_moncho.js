@@ -58,10 +58,27 @@ export default class ninja_moncho extends Phaser.Scene {
             fill: "#fff",
         })
 
+        this.timeleft = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                if (this.timer > 0) {
+                   this.timer --;
+                   this.timertext.setText(`Time: ${this.timer}`); 
+                }
+                if (this.timer <= 0 && !this.gameOver) {
+                    this.gameOver = true;
+                    this.physics.pause();
+                    this.gameOverText.visible = true;
+                    this.restartKey.enabled = true;
+                }
+            },
+            loop: true,
+        });
+
         this.recolectables = this.physics.add.group();
 
         this.spawnShapes = this.time.addEvent({
-            delay: 1000,
+            delay: 500,
             callback: () => {
                 const figuras = ["diamond", "square", "triangle"]
 
@@ -72,6 +89,8 @@ export default class ninja_moncho extends Phaser.Scene {
             },
             loop: true
         })
+
+        this.diamante = "diamond";
 
         this.objetonuevo = this.physics.add.group();
 
@@ -88,33 +107,6 @@ export default class ninja_moncho extends Phaser.Scene {
         })
 
         this.diamond = this.physics.add.sprite(200, 300, "diamond").setScale(0.5); //se añaden los objetos de puntos
-
-        this.spawnShapes = this.time.addEvent({
-            delay: 1000,
-            callback: () => {
-                const figuras = ["diamond", "square", "triangle"]
-
-                const shape = this.recolectables.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(figuras))
-                const scale = Phaser.Math.FloatBetween(0.3, 0.7)
-                console.log(scale)
-                shape.setScale(scale)
-            },
-            loop: true
-        })
-
-        this.objetonuevo = this.physics.add.group()
-
-        this.spawnNewObject = this.time.addEvent({
-            delay: 1000,
-            callback: () => {
-                const circle = ["objeto nuevo"]
-
-                const shapeC = this.objetonuevo.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(circle))
-                const scaleC = Phaser.Math.FloatBetween(0.3, 0.7)
-                console.log(scaleC)
-                shapeC.setScale(scaleC)
-            } // Aplicar y seguir con este metodo desde ahora y acordarse de revisar con la consola de desarrollador
-        })
 
         this.diamond = this.physics.add.sprite(200, 100, "diamond").setScale(0.5).setBounce(1); //se añaden los objetos de puntos
 
@@ -246,21 +238,11 @@ export default class ninja_moncho extends Phaser.Scene {
         this.scoreText.setText(`Score: ${this.score}`);
     }
 
-    contador() {
-        this.timer = 45;
-        this.timertext.addEvent({
-            delay: 1000,
-            callback: () => {
-                if (this.timer > 0) {
-                    this.timer--;
-                }
-                if (this.timer === 0) {
-                    this.gameOver = true;
-                    this.physics.pause();
-                    this.gameOverText.visible = true;
-                }
-            },
-            loop: true,
-        });
+    collectDiamante(player, diamante) {
+        diamante.disableBody(true, true);
+
+        this.score += 20;
+        this.scoreText.setText(`Score: ${this.score}`);
+
     }
 }
