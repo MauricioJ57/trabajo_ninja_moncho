@@ -39,7 +39,6 @@ export default class ninja_moncho extends Phaser.Scene {
             Phaser.Input.Keyboard.KeyCodes.R
         );
 
-        
         this.gameOver = false;
 
         this.scoreText = this.add.text(16, 16, `Score: ${this.score}`,{
@@ -58,6 +57,12 @@ export default class ninja_moncho extends Phaser.Scene {
             fill: "#fff",
         })
 
+        this.victoryText = this.add.text(400, 300, "Ganaste", {
+            fontSize: "64px",
+            fill: "#fff",
+        }).setOrigin(0.5, 0.5);
+        this.victoryText.visible = false;
+
         this.timeleft = this.time.addEvent({
             delay: 1000,
             callback: () => {
@@ -74,94 +79,77 @@ export default class ninja_moncho extends Phaser.Scene {
             },
             loop: true,
         });
+        this.diamond = "diamond";
+
+        this.square = "square";
+
+        this.triangle = "triangle";
+
+        this.circulo = "objeto nuevo";
 
         this.recolectables = this.physics.add.group();
 
         this.spawnShapes = this.time.addEvent({
             delay: 500,
             callback: () => {
-                const figuras = ["diamond", "square", "triangle"]
+                const figuras = {
+                    diamond: { value: 15 },
+                    square: { value: 10 },
+                    triangle: { value: 5 }
+                };
 
-                const shape = this.recolectables.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(figuras))
-                const scale = Phaser.Math.FloatBetween(0.3, 0.7)
-                console.log(scale)
-                shape.setScale(scale)
+                const figuraKeys = Object.keys(figuras);
+                const figuraSeleccionada = Phaser.Math.RND.pick(figuraKeys);
+                const shape = this.recolectables.create(Phaser.Math.Between(32, 800), 0, figuraSeleccionada);
+                shape.setData('value', figuras[figuraSeleccionada].value);
+                const scale = Phaser.Math.FloatBetween(0.2, 0.5);
+                shape.setScale(scale);
+                shape.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
             },
             loop: true
-        })
+        });
 
-        this.diamante = "diamond";
+        this.newobject = this.physics.add.group();
 
-        this.objetonuevo = this.physics.add.group();
-
-        this.spawnNewObject = this.time.addEvent({
-            delay: 1000,
+        this.spawnnewobject = this.time.addEvent({
+            delay: 500,
             callback: () => {
-                const circle = ["objeto nuevo"]
+                const circle = [this.circulo];
 
-                const shapeC = this.objetonuevo.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(circle))
-                const scaleC = Phaser.Math.FloatBetween(0.3, 0.7)
-                console.log(scaleC)
-                shapeC.setScale(scaleC)
-            } // Aplicar y seguir con este metodo desde ahora y acordarse de revisar con la consola de desarrollador apretando F12
-        })
-
-        this.diamond = this.physics.add.sprite(200, 300, "diamond").setScale(0.5); //se añaden los objetos de puntos
-
-        this.diamond = this.physics.add.sprite(200, 100, "diamond").setScale(0.5).setBounce(1); //se añaden los objetos de puntos
-
-        this.square = this.physics.add.sprite(400, 100, "square").setScale(0.5).setBounce(1);
-
-        this.triangle = this.physics.add.sprite(600, 100, "triangle").setScale(0.5).setBounce(1);
-
-        this.circulo = this.physics.add.sprite(700, 100, "objeto nuevo").setScale(0.13).setBounce(1);
+                const shapeCircle = this.newobject.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(circle))
+                const scaleCircle = Phaser.Math.FloatBetween(0.1, 0.2);
+                shapeCircle.setScale(scaleCircle);
+                shapeCircle.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+            },
+            loop: true
+        });
 
         this.physics.add.collider(this.player, this.platforms); //se añaden los colliders entre objetos
 
         this.physics.add.collider(this.recolectables, this.platforms);
 
-        this.physics.add.collider(this.square, this.platforms);
-
-        this.physics.add.collider(this.triangle, this.platforms);
-
-        this.physics.add.collider(this.circulo, this.platforms);
+        this.physics.add.collider(this.newobject, this.platforms);
 
         this.physics.add.overlap(
             this.player,
             this.recolectables,
-            this.collectRecolectables,
+            (player, recolectable) => {
+                this.score += recolectable.getData('value');
+                this.scoreText.setText(`Score: ${this.score}`);
+                recolectable.disableBody(true, true);
+            },
             null,
             this
         );
 
         this.physics.add.overlap(
             this.player,
-            this.diamond,
-            this.collectDiamond,
-            null,
-            this
-        );
-
-        this.physics.add.overlap(
-            this.player,
-            this.square,
-            this.collectSquare,
-            null,
-            this
-        );
-
-        this.physics.add.overlap( // permite que el personaje pueda pasar sobre los objetos
-            this.player,
-            this.triangle,
-            this.collectTriangle,
-            null,
-            this
-        );
-
-        this.physics.add.overlap(
-            this.player,
-            this.circulo,
-            this.collectCirculo,
+            this.newobject,
+            (player, circulo) => {
+                this.score -= 5;
+                this.scoreText.setText(`Score: ${this.score}`);
+                circulo.disableBody(true, true);
+            },
             null,
             this
         );
@@ -186,63 +174,10 @@ export default class ninja_moncho extends Phaser.Scene {
             this.player.setVelocityY(-330);
 
         }
-    }
 
-    collectDiamond(player, diamond) {
-        diamond.disableBody(true, true);
-
-        this.score += 20;
-        this.scoreText.setText(`Score: ${this.score}`);
-
-        if (this.diamond.body.touching.down) {
-            this.score -= 5;
-            this.scoreText.setText(`Score: ${this.score}`);
+        if (this.score >= 100) {
+            this.physics.pause();
+            this.victoryText.visible = true;
         }
-    }
-
-    collectSquare(player, square) {
-        square.disableBody(true, true);
-
-        this.score += 15;
-        this.scoreText.setText(`Score: ${this.score}`);
-
-        if (this.square.body.touching.down) {
-            this.score -= 5;
-            this.scoreText.setText(`Score: ${this.score}`);
-        }
-    }
-    
-    collectTriangle(player, triangle) {
-        triangle.disableBody(true, true);
-
-        this.score += 10;
-        this.scoreText.setText(`Score: ${this.score}`);
-
-        if (this.triangle.body.touching.down) {
-            this.score -= 5;
-            this.scoreText.setText(`Score: ${this.score}`);
-        }
-    }
-
-    collectCirculo(player, circulo) {
-        circulo.disableBody(true, true);
-
-        this.score -= 5;
-        this.scoreText.setText(`Score: ${this.score}`);
-    }
-
-    collectRecolectables(player, recolectables) {
-        recolectables.disableBody(true, true);
-
-        this.score += 1;
-        this.scoreText.setText(`Score: ${this.score}`);
-    }
-
-    collectDiamante(player, diamante) {
-        diamante.disableBody(true, true);
-
-        this.score += 20;
-        this.scoreText.setText(`Score: ${this.score}`);
-
     }
 }
