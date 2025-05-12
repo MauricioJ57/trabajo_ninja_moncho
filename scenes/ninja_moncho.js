@@ -5,7 +5,8 @@ export default class ninja_moncho extends Phaser.Scene {
 
     init() {
        this.score = 0;
-       this.timer = 45;
+       this.timer = 30;
+       this.gameOver = false; // marca el gameover como false para activarlo despues
        // asignar las variables para poder pasarlas entre escenas
     }
 
@@ -18,6 +19,7 @@ export default class ninja_moncho extends Phaser.Scene {
         this.load.image("square", "public/assets/square.png");
         this.load.image("triangle", "public/assets/triangle.png");
         this.load.image("objeto nuevo", "public/assets/objeto nuevo.png");
+        this.load.image("FondoMenu", "public/assets/FondoMenu.jpg");
     }
 
     create() {
@@ -40,8 +42,6 @@ export default class ninja_moncho extends Phaser.Scene {
         this.restartKey = this.input.keyboard.addKey(
             Phaser.Input.Keyboard.KeyCodes.R
         );
-
-        this.gameOver = false; // marca el gameover como false para activarlo despues
 
         this.scoreText = this.add.text(16, 16, `Score: ${this.score}`,{
             fontSize: "32px",
@@ -77,6 +77,11 @@ export default class ninja_moncho extends Phaser.Scene {
                     this.physics.pause();
                     this.gameOverText.visible = true;
                     this.restartKey.enabled = true;
+                    this.scene.start("perdiojuego", {
+                        score: this.score,
+                        timer: this.timer,
+                        state: "gameover",
+                    }); // se inicia la escena de game over
                 }
             },
             loop: true,
@@ -199,6 +204,11 @@ export default class ninja_moncho extends Phaser.Scene {
         if (this.score >= 100) {
             this.physics.pause();
             this.victoryText.visible = true;
+            this.scene.start("ganojuego", {
+                score: this.score,
+                timer: this.timer,
+                state: "ganaste",
+            }); // se inicia la escena de victoria
         } // condicion de victoria
     }
 }
