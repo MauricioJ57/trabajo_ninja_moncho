@@ -5,7 +5,8 @@ export default class ninja_moncho extends Phaser.Scene {
 
     init() {
        this.score = 0;
-       this.timer = 45; // asignar las varianbles para poder pasarlas entre escenas
+       this.timer = 45;
+       // asignar las variables para poder pasarlas entre escenas
     }
 
     preload() {
@@ -26,10 +27,11 @@ export default class ninja_moncho extends Phaser.Scene {
 
         this.platforms.create(400, 580, "platform").setScale(2).refreshBody();
 
-        this.platforms.create(25, 350, "platform");
-        this.platforms.create(775, 350, "platform");
+        this.platforms.create(400, 200, "platform").setScale(0.5).refreshBody();
+        this.platforms.create(25, 400, "platform");
+        this.platforms.create(775, 400, "platform");
 
-        this.player = this.physics.add.sprite(100, 480, "ninja").setScale(0.15); //se añade el personaje
+        this.player = this.physics.add.sprite(100, 480, "ninja").setScale(0.12); //se añade el personaje
 
         this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
@@ -39,29 +41,29 @@ export default class ninja_moncho extends Phaser.Scene {
             Phaser.Input.Keyboard.KeyCodes.R
         );
 
-        this.gameOver = false;
+        this.gameOver = false; // marca el gameover como false para activarlo despues
 
         this.scoreText = this.add.text(16, 16, `Score: ${this.score}`,{
             fontSize: "32px",
             fill: "#fff",
-        })
+        }) // añade el texto de score
 
         this.gameOverText = this.add.text(400, 300, "Game Over", {
             fontSize: "64px",
             fill: "#fff",
         }).setOrigin(0.5, 0.5);
-        this.gameOverText.visible = false;
+        this.gameOverText.visible = false; // añade el texto de game over y lo desactiva
 
         this.timertext = this.add.text(16, 45, `Time: ${this.timer}`, {
             fontSize: "32px",
             fill: "#fff",
-        })
+        }) // añade el texto del timer
 
         this.victoryText = this.add.text(400, 300, "Ganaste", {
             fontSize: "64px",
             fill: "#fff",
         }).setOrigin(0.5, 0.5);
-        this.victoryText.visible = false;
+        this.victoryText.visible = false; // añade el texto de victoria y lo desactiva
 
         this.timeleft = this.time.addEvent({
             delay: 1000,
@@ -78,7 +80,8 @@ export default class ninja_moncho extends Phaser.Scene {
                 }
             },
             loop: true,
-        });
+        });// activa la funcion para que el timer se ejecute
+
         this.diamond = "diamond";
 
         this.square = "square";
@@ -107,9 +110,9 @@ export default class ninja_moncho extends Phaser.Scene {
                 shape.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
             },
             loop: true
-        });
+        }); // añade el evento para que se generen las figuras aleatoriamente cada 0.5s
 
-        this.newobject = this.physics.add.group();
+        this.newobject = this.physics.add.group(); // crea un nuevo grupo de fisicas
 
         this.spawnnewobject = this.time.addEvent({
             delay: 500,
@@ -117,18 +120,36 @@ export default class ninja_moncho extends Phaser.Scene {
                 const circle = [this.circulo];
 
                 const shapeCircle = this.newobject.create(Phaser.Math.Between(32, 800), 0, Phaser.Math.RND.pick(circle))
-                const scaleCircle = Phaser.Math.FloatBetween(0.1, 0.2);
+                const scaleCircle = Phaser.Math.FloatBetween(0.1, 0.1);
                 shapeCircle.setScale(scaleCircle);
                 shapeCircle.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
             },
             loop: true
-        });
+        }); // añade el evento para que se generen los circulos aleatoriamente cada 0.5s, colocado aparte para manejar la escala de la imagen
 
-        this.physics.add.collider(this.player, this.platforms); //se añaden los colliders entre objetos
+        this.physics.add.collider(this.player, this.platforms); //se añaden los colliders entre player y plataformas
 
-        this.physics.add.collider(this.recolectables, this.platforms);
+        this.physics.add.collider(this.recolectables, this.platforms, (recolectable) => {
+            const valoractual = recolectable.getData('value');
+            const restapuntos = valoractual - 5;
 
-        this.physics.add.collider(this.newobject, this.platforms);
+            if (restapuntos <= 0) {
+                recolectable.disableBody(true, true);
+            } else {
+                recolectable.setData('value', restapuntos);
+            }
+        }); // hace que cuando las figuras colisionen con las plataformas se les reste 5 puntos y si llegan a 0 desaparezcan
+
+        this.physics.add.collider(this.newobject, this.platforms, (newobject) => {
+            const valoractualCircle = newobject.getData('value') || 0;
+            const sumapuntosCircle = valoractualCircle + 5;
+
+            if (sumapuntosCircle >= 0) {
+                newobject.disableBody(true, true);
+            } else {
+                newobject.setData('value', sumapuntosCircle);
+            }
+        }); // hace que cuando los circulos colisionen con las plataformas se les sume 5 puntos y si llegan a 0 desaparezcan
 
         this.physics.add.overlap(
             this.player,
@@ -140,7 +161,7 @@ export default class ninja_moncho extends Phaser.Scene {
             },
             null,
             this
-        );
+        ); // hace que el jugador pueda recoger las figuras y se le sumen los puntos
 
         this.physics.add.overlap(
             this.player,
@@ -152,7 +173,7 @@ export default class ninja_moncho extends Phaser.Scene {
             },
             null,
             this
-        );
+        ); // hace que el jugador pueda recoger los circulos y se le resten los puntos
 
     }
 
@@ -171,13 +192,13 @@ export default class ninja_moncho extends Phaser.Scene {
         }
 
         if (this.cursors.up.isDown && this.player.body.touching.down) {
-            this.player.setVelocityY(-330);
+            this.player.setVelocityY(-300);
 
         }
 
         if (this.score >= 100) {
             this.physics.pause();
             this.victoryText.visible = true;
-        }
+        } // condicion de victoria
     }
 }
