@@ -1,4 +1,6 @@
 import ninja_moncho from "./scenes/ninja_moncho.js";
+import perdiojuego from "./scenes/perdiojuego.js";
+import ganojuego from "./scenes/ganojuego.js";
 
 // Create a new Phaser config object
 const config = {
@@ -27,7 +29,7 @@ const config = {
   // List of scenes to load
   // Only the first scene will be shown
   // Remember to import the scene before adding it to the list
-  scene: [ninja_moncho],
+  scene: [ninja_moncho, perdiojuego, ganojuego],
 };
 
 // Create a new Phaser game instance
